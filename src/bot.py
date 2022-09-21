@@ -1,5 +1,5 @@
 import discord
-import responses
+from discord.ext import commands
 from dotenv import load_dotenv
 import os
 
@@ -7,29 +7,18 @@ load_dotenv()
 
 TOKEN = os.getenv("DISCORD_TOKEN")
 
-intents = discord.Intents.default()
-intents.members = True
-intents.message_content = True
-client = discord.Client(intents=intents)
+intents = discord.Intents.all()
+bot = commands.Bot(command_prefix="!", intents=intents)
 
 
-@client.event
+@bot.event
 async def on_ready():
-    print(f"{client.user} is running")
+    print(f"{bot.user} is running!")
+    await bot.change_presence(status=discord.Status.online, activity=discord.Game(name="Beep Boop"))
 
 
-@client.event
-async def on_message(message):
-    if message.author == client.user:
-        return
+@bot.command()
+async def hello(ctx):
+    await ctx.send("Hello, I am a bot")
 
-    username = str(message.author)
-    user_message = str(message.content)
-    channel = str(message.channel)
-
-    print(f"{username}: {user_message}")
-
-    msg = responses.handle_response(user_message)
-    await message.channel.send(msg)
-
-client.run(TOKEN)
+bot.run(TOKEN)
